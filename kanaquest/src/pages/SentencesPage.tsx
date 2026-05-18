@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import Modal from "../components/common/Modal";
-import KanjiForm from "../components/kanji/KanjiForm";
+import SentenceForm from "../components/sentences/SentenceForm";
 import FolderForm from "../components/flashcards/FolderForm";
 import FolderGrid from "../components/flashcards/FolderGrid";
 import FlashcardList from "../components/flashcards/FlashcardList";
@@ -15,7 +15,7 @@ import {
 
 type Mode = "manage" | "practice";
 
-export default function KanjiPage() {
+export default function SentencesPage() {
     const [folders, setFolders] = useState<FlashcardFolder[]>(() => getFolders());
     const [cards, setCards] = useState<CustomFlashcard[]>(() => getFlashcards());
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
@@ -64,34 +64,34 @@ export default function KanjiPage() {
         setIsDeleteFolderModalOpen(false);
     }
 
-    const kanjiCards = useMemo(() => {
-        return cards.filter((card) => card.type === "kanji");
+    const sentenceCards = useMemo(() => {
+        return cards.filter((card) => card.type === "sentence");
     }, [cards]);
 
-    const kanjiFolders = useMemo(() => {
-        return folders.filter((folder) => folder.type === "kanji");
+    const sentenceFolders = useMemo(() => {
+        return folders.filter((folder) => folder.type === "sentence");
     }, [folders]);
 
     const selectedFolder = useMemo(() => {
-        return kanjiFolders.find((folder) => folder.id === selectedFolderId);
-    }, [kanjiFolders, selectedFolderId]);
+        return sentenceFolders.find((folder) => folder.id === selectedFolderId);
+    }, [sentenceFolders, selectedFolderId]);
 
     const selectedFolderCards = useMemo(() => {
         if (!selectedFolderId) return [];
-        return kanjiCards.filter((card) => card.folderId === selectedFolderId);
-    }, [kanjiCards, selectedFolderId]);
+        return sentenceCards.filter((card) => card.folderId === selectedFolderId);
+    }, [sentenceCards, selectedFolderId]);
 
     if (!selectedFolderId || !selectedFolder) {
         return (
             <main className="page-container">
-                <h1>Kanji</h1>
+                <h1>Oraciones</h1>
 
-                <FolderForm folderType="kanji" onAddFolder={addFolder} />
+                <FolderForm folderType="sentence" onAddFolder={addFolder} />
 
                 <FolderGrid
-                    folders={kanjiFolders}
-                    cards={kanjiCards}
-                    emptyText="Crea una carpeta para empezar a guardar kanji."
+                    folders={sentenceFolders}
+                    cards={sentenceCards}
+                    emptyText="Crea una carpeta para empezar a guardar oraciones."
                     onSelectFolder={(folderId) => {
                         setSelectedFolderId(folderId);
                         setMode("manage");
@@ -113,7 +113,7 @@ export default function KanjiPage() {
 
                 <div>
                     <h1>{selectedFolder.name}</h1>
-                    <p>{selectedFolderCards.length} kanji</p>
+                    <p>{selectedFolderCards.length} oraciones</p>
                 </div>
 
                 <div className="folder-actions">
@@ -146,8 +146,8 @@ export default function KanjiPage() {
             {mode === "practice" && <FlashcardPractice cards={selectedFolderCards} />}
 
             {isAddModalOpen && (
-                <Modal title="Agregar kanji" onClose={() => setIsAddModalOpen(false)}>
-                    <KanjiForm
+                <Modal title="Agregar oracion" onClose={() => setIsAddModalOpen(false)}>
+                    <SentenceForm
                         folders={[selectedFolder]}
                         defaultFolderId={selectedFolder.id}
                         onAddCard={addCard}
@@ -186,8 +186,8 @@ export default function KanjiPage() {
             )}
 
             {editingCard && (
-                <Modal title="Editar kanji" onClose={() => setEditingCard(null)}>
-                    <KanjiForm
+                <Modal title="Editar oracion" onClose={() => setEditingCard(null)}>
+                    <SentenceForm
                         folders={[selectedFolder]}
                         defaultFolderId={selectedFolder.id}
                         editingCard={editingCard}

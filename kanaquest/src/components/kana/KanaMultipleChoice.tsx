@@ -3,7 +3,7 @@ import { KanaCard } from "../../types/study";
 
 type Props = {
     cards: KanaCard[];
-    totalQuestions?: number;
+    totalQuestions: number;
 };
 
 type Mistake = {
@@ -28,11 +28,13 @@ export default function KanaMultipleChoice({
         incorrect: 0,
     });
 
-    const [mistakes, setMistakes] = useState<Mistake[]>([]);
+    const safeTotalQuestions = Math.min(totalQuestions, cards.length);
 
     const quizCards = useMemo(() => {
-        return shuffleArray(cards).slice(0, totalQuestions);
-    }, [cards, totalQuestions]);
+        return shuffleArray(cards).slice(0, safeTotalQuestions);
+    }, [cards, safeTotalQuestions]);
+
+    const [mistakes, setMistakes] = useState<Mistake[]>([]);
 
     const isFinished = currentIndex >= quizCards.length;
     const currentCard = quizCards[currentIndex];
