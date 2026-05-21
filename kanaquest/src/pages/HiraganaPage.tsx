@@ -22,18 +22,10 @@ export default function HiraganaPage() {
     function handleModeChange(nextMode: Mode) {
         setMode(nextMode);
 
-        if (nextMode === "quiz" && group === "all") {
-            setGroup("basic");
+        if (nextMode === "quiz") {
+            setGroup("all");
         }
     }
-
-    const visibleGroupButtons = useMemo(() => {
-        if (mode === "quiz") {
-            return groupLabels.filter((item) => item.id !== "all");
-        }
-
-        return groupLabels;
-    }, [mode]);
 
     const selectedCards = useMemo(() => {
         return hiraganaGroups[group];
@@ -47,7 +39,7 @@ export default function HiraganaPage() {
             <h1>Hiragana</h1>
 
             <div className="tabs">
-                {visibleGroupButtons.map((item) => (
+                {groupLabels.map((item) => (
                     <button
                         key={item.id}
                         className={group === item.id ? "is-active" : ""}

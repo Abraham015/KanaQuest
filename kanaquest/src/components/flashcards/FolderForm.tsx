@@ -3,23 +3,27 @@ import { FlashcardFolder, FlashcardType } from "../../types/flashcards";
 
 type Props = {
     folderType: FlashcardType;
-    onAddFolder: (folder: FlashcardFolder) => void;
+    onAddFolder: (folder: FlashcardFolder) => void | Promise<void>;
 };
 
 export default function FolderForm({ folderType, onAddFolder }: Props) {
     const [name, setName] = useState("");
 
-    function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
         if (!name.trim()) return;
 
-        onAddFolder({
-            id: crypto.randomUUID(),
-            type: folderType,
-            name: name.trim(),
-            createdAt: new Date().toISOString(),
-        });
+        try {
+            await onAddFolder({
+                id: crypto.randomUUID(),
+                type: folderType,
+                name: name.trim(),
+                createdAt: new Date().toISOString(),
+            });
+        } catch {
+            return;
+        }
 
         setName("");
     }

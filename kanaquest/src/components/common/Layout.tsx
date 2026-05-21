@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import Menu from "./Menu";
 import GlobalSearch, { SearchResult } from "./GlobalSearch";
+import SyncBanner from "./SyncBanner";
+import AccountHeaderAction from "./AccountHeaderAction";
 import { Section } from "../../types/navigation";
 
 type Props = {
@@ -49,9 +51,14 @@ export default function Layout({
                     onChange={onChangeSearch}
                     onSelectResult={onChangeSection}
                 />
+
+                <AccountHeaderAction onChangeSection={onChangeSection} />
             </header>
 
-            <main className="app-content">{children}</main>
+            <main className="app-content">
+                <SyncBanner />
+                {children}
+            </main>
         </div>
     );
 }

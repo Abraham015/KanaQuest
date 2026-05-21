@@ -3,7 +3,7 @@ import { CustomFlashcard, FlashcardFolder } from "../../types/flashcards";
 
 type Props = {
     folders: FlashcardFolder[];
-    onAddCard: (card: CustomFlashcard) => void;
+    onAddCard: (card: CustomFlashcard) => void | Promise<void>;
     defaultFolderId?: string;
     editingCard?: CustomFlashcard;
     onSaved?: () => void;
@@ -28,22 +28,26 @@ export default function SentenceForm({
         setMeaning(editingCard?.meaning || "");
     }, [defaultFolderId, editingCard]);
 
-    function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
         if (!folderId || !sentence.trim() || !pronunciation.trim() || !meaning.trim()) {
             return;
         }
 
-        onAddCard({
-            id: editingCard?.id || crypto.randomUUID(),
-            type: "sentence",
-            folderId,
-            front: sentence.trim(),
-            pronunciation: pronunciation.trim(),
-            meaning: meaning.trim(),
-            createdAt: editingCard?.createdAt || new Date().toISOString(),
-        });
+        try {
+            await onAddCard({
+                id: editingCard?.id || crypto.randomUUID(),
+                type: "sentence",
+                folderId,
+                front: sentence.trim(),
+                pronunciation: pronunciation.trim(),
+                meaning: meaning.trim(),
+                createdAt: editingCard?.createdAt || new Date().toISOString(),
+            });
+        } catch {
+            return;
+        }
 
         setSentence("");
         setPronunciation("");
