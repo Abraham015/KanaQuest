@@ -18,6 +18,7 @@ export default function KanjiPage() {
         isRemote,
         error,
         addFolder,
+        updateFolder,
         addCard,
         deleteCard,
         updateCard,
@@ -26,6 +27,7 @@ export default function KanjiPage() {
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
     const [mode, setMode] = useState<Mode>("manage");
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditFolderModalOpen, setIsEditFolderModalOpen] = useState(false);
     const [isDeleteFolderModalOpen, setIsDeleteFolderModalOpen] = useState(false);
     const [editingCard, setEditingCard] = useState<CustomFlashcard | null>(null);
 
@@ -92,6 +94,13 @@ export default function KanjiPage() {
                 </div>
 
                 <div className="folder-actions">
+                    <button
+                        className="secondary-button"
+                        onClick={() => setIsEditFolderModalOpen(true)}
+                    >
+                        Editar carpeta
+                    </button>
+
                     <button
                         className="delete-folder-button"
                         onClick={() => setIsDeleteFolderModalOpen(true)}
@@ -166,11 +175,25 @@ export default function KanjiPage() {
             {editingCard && (
                 <Modal title="Editar kanji" onClose={() => setEditingCard(null)}>
                     <KanjiForm
-                        folders={[selectedFolder]}
+                        folders={kanjiFolders}
                         defaultFolderId={selectedFolder.id}
                         editingCard={editingCard}
                         onAddCard={updateCard}
                         onSaved={() => setEditingCard(null)}
+                    />
+                </Modal>
+            )}
+
+            {isEditFolderModalOpen && (
+                <Modal
+                    title="Editar carpeta"
+                    onClose={() => setIsEditFolderModalOpen(false)}
+                >
+                    <FolderForm
+                        folderType="kanji"
+                        editingFolder={selectedFolder}
+                        onAddFolder={updateFolder}
+                        onSaved={() => setIsEditFolderModalOpen(false)}
                     />
                 </Modal>
             )}

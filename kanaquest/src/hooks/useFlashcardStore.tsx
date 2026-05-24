@@ -18,6 +18,7 @@ import {
     saveFolders,
     saveLocalFlashcardData,
     updateRemoteFlashcard,
+    updateRemoteFolder,
 } from "../utils/flashcardStorage";
 
 type FlashcardStore = {
@@ -28,6 +29,7 @@ type FlashcardStore = {
     error: string | null;
     syncState: FlashcardSyncState;
     addFolder: (folder: FlashcardFolder) => Promise<void>;
+    updateFolder: (folder: FlashcardFolder) => Promise<void>;
     addCard: (card: CustomFlashcard) => Promise<void>;
     deleteCard: (id: string) => Promise<void>;
     updateCard: (updatedCard: CustomFlashcard) => Promise<void>;
@@ -107,6 +109,27 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
             if (isRemote) setSyncState("synced");
         } catch (err) {
             setError(getErrorMessage(err, "No se pudo guardar la carpeta."));
+            throw err;
+        }
+    }
+
+    async function updateFolder(updatedFolder: FlashcardFolder) {
+        setError(null);
+
+        try {
+            if (isRemote) {
+                await updateRemoteFolder(updatedFolder);
+            }
+
+            const updatedFolders = folders.map((folder) =>
+                folder.id === updatedFolder.id ? updatedFolder : folder
+            );
+            setFolders(updatedFolders);
+            saveFolders(updatedFolders);
+
+            if (isRemote) setSyncState("synced");
+        } catch (err) {
+            setError(getErrorMessage(err, "No se pudo actualizar la carpeta."));
             throw err;
         }
     }
@@ -239,6 +262,7 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
         error,
         syncState,
         addFolder,
+        updateFolder,
         addCard,
         deleteCard,
         updateCard,

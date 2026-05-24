@@ -882,6 +882,7 @@ body {
 .form-card select,
 .flashcard-search input,
 .practice-settings input,
+.practice-settings select,
 .quiz-settings select {
   padding: 12px;
   border-radius: 12px;
@@ -914,6 +915,7 @@ body {
 .flashcard-search input:focus,
 .folder-selector select:focus,
 .practice-settings input:focus,
+.practice-settings select:focus,
 .quiz-settings select:focus {
   border-color: #111827;
   box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.12);
@@ -977,7 +979,9 @@ body {
 
 .form-card button,
 .practice-settings button,
-.flashcard-practice button {
+.flashcard-practice button,
+.quiz-settings button,
+.quiz-lockbar button {
   border: none;
   border-radius: 14px;
   padding: 12px 18px;
@@ -987,6 +991,128 @@ body {
   cursor: pointer;
 }
 
+.quiz-settings button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.practice-settings label {
+  display: grid;
+  gap: 8px;
+  font-weight: 800;
+}
+
+.practice-settings select {
+  width: min(100%, 320px);
+}
+
+.written-practice {
+  display: grid;
+  gap: 16px;
+}
+
+.written-prompt {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 18px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.written-prompt span,
+.written-prompt small {
+  color: #6b7280;
+  font-weight: 800;
+}
+
+.written-prompt strong {
+  color: #020617;
+  font-size: 30px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.answer-feedback {
+  border-radius: 14px;
+  padding: 14px;
+  font-weight: 800;
+}
+
+.answer-feedback p {
+  margin: 0;
+}
+
+.answer-feedback p + p {
+  margin-top: 6px;
+}
+
+.answer-feedback.correct {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.answer-feedback.incorrect {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.practice-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.section-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.section-picker legend {
+  flex-basis: 100%;
+  margin-bottom: 2px;
+  color: #111827;
+  font-weight: 800;
+}
+
+.section-picker label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 12px;
+  padding: 9px 12px;
+  background: #f3f4f6;
+  color: #111827;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.section-picker input {
+  width: auto;
+}
+
+.quiz-lockbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: white;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin: 16px 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.quiz-lockbar span {
+  color: #4b5563;
+  font-weight: 800;
+}
+
 .kanji-forms-grid {
   display: grid;
   gap: 18px;
@@ -994,28 +1120,32 @@ body {
 
 .custom-card-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
 }
 
 .small-card {
   background: white;
   border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 22px;
+  box-shadow: 0 8px 22px rgba(17, 24, 39, 0.08);
   display: grid;
-  gap: 10px;
-  position: relative;
+  gap: 18px;
+  align-content: start;
+  min-height: 260px;
 }
 
 .small-card h2 {
-  margin: 8px 0 2px;
-  padding-right: 150px;
+  margin: 0;
+  color: #020617;
+  font-size: 30px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .flashcard-meta {
   display: grid;
-  gap: 10px;
+  gap: 14px;
   margin: 0;
 }
 
@@ -1034,18 +1164,24 @@ body {
 .flashcard-meta dd {
   margin: 0;
   color: #111827;
+  font-size: 17px;
   font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.small-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .small-card-actions {
-  position: absolute;
-  top: 12px;
-  right: 12px;
   display: flex;
-  gap: 6px;
+  gap: 8px;
   justify-content: flex-end;
   flex-wrap: wrap;
-  max-width: calc(100% - 24px);
 }
 
 .small-card-actions button {
@@ -1079,14 +1215,17 @@ body {
 }
 
 .card-type {
+  flex: 0 1 auto;
   width: fit-content;
-  max-width: calc(100% - 150px);
+  max-width: 100%;
   border-radius: 999px;
-  padding: 4px 9px;
+  padding: 6px 11px;
   background: #f3f4f6;
   color: #4b5563;
   font-size: 12px;
   font-weight: 800;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .folder-grid {

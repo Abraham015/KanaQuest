@@ -57,7 +57,9 @@ export default function VocabularyForm({
 
     return (
         <form className="form-card" onSubmit={handleSubmit}>
-            {!defaultFolderId && (
+            {(!defaultFolderId || editingCard) && (
+                <label className="field-group">
+                    Carpeta
                 <select value={folderId} onChange={(e) => setFolderId(e.target.value)}>
                     <option value="">Selecciona carpeta</option>
 
@@ -67,6 +69,7 @@ export default function VocabularyForm({
                         </option>
                     ))}
                 </select>
+                </label>
             )}
 
             <label className="field-group">

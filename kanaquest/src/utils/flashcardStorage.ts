@@ -383,6 +383,19 @@ export async function createRemoteFolder(folder: FlashcardFolder) {
     if (error) throw error;
 }
 
+export async function updateRemoteFolder(folder: FlashcardFolder) {
+    if (!supabase) return;
+
+    const { error } = await supabase
+        .from("flashcard_folders")
+        .update({
+            name: folder.name,
+        })
+        .eq("id", folder.id);
+
+    if (error) throw error;
+}
+
 export async function createRemoteFlashcard(card: CustomFlashcard) {
     if (!supabase) return;
 
