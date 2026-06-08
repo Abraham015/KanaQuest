@@ -56,3 +56,24 @@ credenciales en el navegador. Configura estas variables privadas en Netlify:
 
 No uses el prefijo `REACT_APP_` para estas variables porque ese prefijo incluiría
 sus valores en el bundle público.
+
+## Calidad y CI
+
+GitHub Actions ejecuta en cada pull request y push a `main` o `master`:
+
+- TypeScript typecheck.
+- Pruebas unitarias y coverage.
+- Build de producción.
+- Validación de sintaxis de la función Netlify.
+- Auditoría de dependencias, bloqueando vulnerabilidades críticas.
+
+Ejecuta la misma validación localmente con:
+
+```bash
+npm run ci
+```
+
+La lógica pura de búsqueda tiene un umbral obligatorio de 100% en statements,
+branches, functions y lines. Los componentes e integraciones cuentan además con
+pruebas de comportamiento, y deben incorporarse progresivamente al umbral estricto
+conforme se desacoplen de Supabase y del estado de interfaz.
