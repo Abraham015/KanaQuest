@@ -1,1 +1,1 @@
-export type Section = "hiragana" | "katakana" | "kanji" | "sentences" | "vocabulary" | "account";
+export type Section = "hiragana" | "katakana" | "kanji" | "sentences" | "vocabulary" | "grammar" | "help" | "account";

@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import Menu from "./Menu";
 import GlobalSearch, { SearchResult } from "./GlobalSearch";
-import SyncBanner from "./SyncBanner";
 import AccountHeaderAction from "./AccountHeaderAction";
 import { Section } from "../../types/navigation";
 
@@ -56,7 +55,6 @@ export default function Layout({
             </header>
 
             <main className="app-content">
-                <SyncBanner />
                 {children}
             </main>
         </div>

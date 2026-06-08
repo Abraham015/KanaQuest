@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { useSupabaseAccount } from "../hooks/useSupabaseAccount";
+import { useFlashcardStore } from "../hooks/useFlashcardStore";
 
 type AuthMode = "sign-in" | "sign-up";
 
@@ -17,6 +18,7 @@ export default function AccountPage() {
         updateDisplayName,
         updateEmail,
     } = useSupabaseAccount();
+    const { cards, folders, isRemote } = useFlashcardStore();
     const [authMode, setAuthMode] = useState<AuthMode>("sign-in");
     const [authEmail, setAuthEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -196,21 +198,49 @@ export default function AccountPage() {
 
     return (
         <main className="page-container account-page">
-            <section className="account-panel">
+            <section className="account-overview">
+                <div>
+                    <span className="account-kicker">Panel personal</span>
+                    <h1>Tu cuenta</h1>
+                    <p>Administra tu perfil y revisa cómo se guardan tus materiales.</p>
+                </div>
                 <div className="account-heading">
-                    <div>
-                        <h1>{displayName || "Cuenta"}</h1>
-                        <p>{email}</p>
-                    </div>
-
                     <button type="button" className="secondary-button" onClick={signOut}>
-                        Salir
+                        Cerrar sesión
                     </button>
                 </div>
+            </section>
 
+            <section className="account-stats" aria-label="Resumen de cuenta">
+                <article>
+                    <span>Tarjetas</span>
+                    <strong>{cards.length}</strong>
+                    <small>Guardadas para practicar</small>
+                </article>
+                <article>
+                    <span>Carpetas</span>
+                    <strong>{folders.length}</strong>
+                    <small>Colecciones organizadas</small>
+                </article>
+                <article>
+                    <span>Sincronización</span>
+                    <strong>{isRemote ? "Activa" : "Local"}</strong>
+                    <small>{isRemote ? "Supabase conectado" : "Solo en este dispositivo"}</small>
+                </article>
+                <article>
+                    <span>Seguridad</span>
+                    <strong>30 min</strong>
+                    <small>Cierre por inactividad</small>
+                </article>
+            </section>
+
+            <section className="account-settings-grid">
+                <div className="account-panel">
+                    <h2>Perfil</h2>
+                    <p>Este nombre se muestra en el botón de cuenta de la cabecera.</p>
                 <form className="account-form" onSubmit={handleDisplayName}>
                     <label>
-                        Nombre
+                        Nombre visible
                         <input
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -222,10 +252,14 @@ export default function AccountPage() {
                         Guardar nombre
                     </button>
                 </form>
+                </div>
 
+                <div className="account-panel">
+                    <h2>Correo de acceso</h2>
+                    <p>Supabase enviará una confirmación antes de aplicar el cambio.</p>
                 <form className="account-form" onSubmit={handleEmail}>
                     <label>
-                        Nuevo email
+                        Correo
                         <input
                             type="email"
                             value={newEmail}
@@ -238,6 +272,18 @@ export default function AccountPage() {
                         Cambiar email
                     </button>
                 </form>
+                </div>
+            </section>
+
+            <section className="account-panel account-security-note">
+                <div>
+                    <h2>Protección de tus datos</h2>
+                    <p>
+                        Tus tarjetas se sincronizan automáticamente al iniciar sesión. La sesión
+                        se cierra tras 30 minutos sin actividad.
+                    </p>
+                </div>
+                <span>Sesión protegida</span>
             </section>
         </main>
     );

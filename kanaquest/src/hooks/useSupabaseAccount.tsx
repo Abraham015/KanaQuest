@@ -20,6 +20,8 @@ export type AccountActionResult = {
 };
 
 const AccountContext = createContext<AccountContextValue | null>(null);
+const SESSION_ACTIVITY_KEY = "kanaquest-last-session-activity";
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 
 function getErrorMessage(error: unknown, fallback: string) {
     if (error instanceof Error) return error.message;
@@ -117,6 +119,51 @@ export function SupabaseAccountProvider({ children }: { children: ReactNode }) {
         return () => subscription?.data.subscription.unsubscribe();
     }, []);
 
+    useEffect(() => {
+        if (!email || !supabase) return;
+
+        let lastSavedActivity = 0;
+
+        function saveActivity() {
+            const now = Date.now();
+
+            if (now - lastSavedActivity < 30_000) return;
+
+            lastSavedActivity = now;
+            localStorage.setItem(SESSION_ACTIVITY_KEY, String(now));
+        }
+
+        async function closeInactiveSession() {
+            const lastActivity = Number(localStorage.getItem(SESSION_ACTIVITY_KEY));
+
+            if (lastActivity && Date.now() - lastActivity >= SESSION_TIMEOUT_MS) {
+                await signOut();
+            }
+        }
+
+        const storedActivity = Number(localStorage.getItem(SESSION_ACTIVITY_KEY));
+
+        if (!storedActivity) {
+            saveActivity();
+        } else {
+            closeInactiveSession();
+        }
+
+        const activityEvents: Array<keyof WindowEventMap> = [
+            "pointerdown",
+            "keydown",
+            "scroll",
+            "touchstart",
+        ];
+        activityEvents.forEach((eventName) => window.addEventListener(eventName, saveActivity));
+        const timeoutCheck = window.setInterval(closeInactiveSession, 60_000);
+
+        return () => {
+            activityEvents.forEach((eventName) => window.removeEventListener(eventName, saveActivity));
+            window.clearInterval(timeoutCheck);
+        };
+    }, [email]);
+
     async function signIn(nextEmail: string, password: string): Promise<AccountActionResult> {
         if (!supabase) {
             return { ok: false, message: "Supabase no esta configurado." };
@@ -172,6 +219,7 @@ export function SupabaseAccountProvider({ children }: { children: ReactNode }) {
 
     async function signOut() {
         await supabase?.auth.signOut();
+        localStorage.removeItem(SESSION_ACTIVITY_KEY);
         setEmail(null);
         setDisplayName(null);
     }

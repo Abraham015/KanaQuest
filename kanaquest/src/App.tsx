@@ -8,6 +8,8 @@ import KanjiPage from "./pages/KanjiPage";
 import SentencesPage from "./pages/SentencesPage";
 import VocabularyPage from "./pages/VocabularyPage";
 import AccountPage from "./pages/AccountPage";
+import HelpPage from "./pages/HelpPage";
+import GrammarPage from "./pages/GrammarPage";
 import { Section } from "./types/navigation";
 import { getGlobalSearchResults } from "./utils/globalSearch";
 import { FlashcardStoreProvider, useFlashcardStore } from "./hooks/useFlashcardStore";
@@ -44,6 +46,8 @@ function AppContent() {
             {section === "kanji" && <KanjiPage />}
             {section === "sentences" && <SentencesPage />}
             {section === "vocabulary" && <VocabularyPage />}
+            {section === "grammar" && <GrammarPage />}
+            {section === "help" && <HelpPage />}
             {section === "account" && <AccountPage />}
         </Layout>
     );

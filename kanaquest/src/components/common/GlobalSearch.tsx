@@ -52,7 +52,7 @@ export default function GlobalSearch({
                     setIsOpen(true);
                 }}
                 onFocus={() => setIsOpen(true)}
-                placeholder="Caracter japones, pronunciacion o significado"
+                placeholder="Carácter japonés, pronunciación o significado"
             />
 
             {hasQuery && isOpen && (

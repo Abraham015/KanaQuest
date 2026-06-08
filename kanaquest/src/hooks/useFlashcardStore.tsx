@@ -6,17 +6,12 @@ import {
     createRemoteFolder,
     deleteRemoteFlashcard,
     deleteRemoteFolder,
-    fetchRemoteFlashcardData,
-    FlashcardSyncState,
     getErrorMessage,
     getFlashcards,
     getFolders,
-    getLocalFlashcardData,
     loadRemoteFlashcardData,
-    replaceRemoteFlashcardData,
     saveFlashcards,
     saveFolders,
-    saveLocalFlashcardData,
     updateRemoteFlashcard,
     updateRemoteFolder,
 } from "../utils/flashcardStorage";
@@ -27,15 +22,12 @@ type FlashcardStore = {
     isLoading: boolean;
     isRemote: boolean;
     error: string | null;
-    syncState: FlashcardSyncState;
     addFolder: (folder: FlashcardFolder) => Promise<void>;
     updateFolder: (folder: FlashcardFolder) => Promise<void>;
     addCard: (card: CustomFlashcard) => Promise<void>;
     deleteCard: (id: string) => Promise<void>;
     updateCard: (updatedCard: CustomFlashcard) => Promise<void>;
     deleteFolder: (folderId: string) => Promise<void>;
-    pullFromSupabase: () => Promise<void>;
-    pushLocalToSupabase: () => Promise<void>;
 };
 
 const FlashcardStoreContext = createContext<FlashcardStore | null>(null);
@@ -46,7 +38,6 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
     const [isRemote, setIsRemote] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [syncState, setSyncState] = useState<FlashcardSyncState>("none");
 
     useEffect(() => {
         let isActive = true;
@@ -63,7 +54,6 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
                 setFolders(data.folders);
                 setCards(data.cards);
                 setIsRemote(data.isRemote);
-                setSyncState(data.syncState);
 
                 if (!data.isRemote) {
                     saveFolders(data.folders);
@@ -74,7 +64,6 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
 
                 setError(getErrorMessage(err, "No se pudo cargar Supabase."));
                 setIsRemote(false);
-                setSyncState("none");
             } finally {
                 if (isActive) {
                     setIsLoading(false);
@@ -106,7 +95,6 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
             setFolders(updatedFolders);
             saveFolders(updatedFolders);
 
-            if (isRemote) setSyncState("synced");
         } catch (err) {
             setError(getErrorMessage(err, "No se pudo guardar la carpeta."));
             throw err;
@@ -127,7 +115,6 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
             setFolders(updatedFolders);
             saveFolders(updatedFolders);
 
-            if (isRemote) setSyncState("synced");
         } catch (err) {
             setError(getErrorMessage(err, "No se pudo actualizar la carpeta."));
             throw err;
@@ -146,7 +133,6 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
             setCards(updatedCards);
             saveFlashcards(updatedCards);
 
-            if (isRemote) setSyncState("synced");
         } catch (err) {
             setError(getErrorMessage(err, "No se pudo guardar la tarjeta."));
             throw err;
@@ -165,7 +151,6 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
             setCards(updatedCards);
             saveFlashcards(updatedCards);
 
-            if (isRemote) setSyncState("synced");
         } catch (err) {
             setError(getErrorMessage(err, "No se pudo eliminar la tarjeta."));
             throw err;
@@ -186,7 +171,6 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
             setCards(updatedCards);
             saveFlashcards(updatedCards);
 
-            if (isRemote) setSyncState("synced");
         } catch (err) {
             setError(getErrorMessage(err, "No se pudo actualizar la tarjeta."));
             throw err;
@@ -209,48 +193,9 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
             saveFolders(updatedFolders);
             saveFlashcards(updatedCards);
 
-            if (isRemote) setSyncState("synced");
         } catch (err) {
             setError(getErrorMessage(err, "No se pudo eliminar la carpeta."));
             throw err;
-        }
-    }
-
-    async function pullFromSupabase() {
-        setError(null);
-        setIsLoading(true);
-
-        try {
-            const remoteData = await fetchRemoteFlashcardData();
-
-            setFolders(remoteData.folders);
-            setCards(remoteData.cards);
-            saveLocalFlashcardData(remoteData);
-            setIsRemote(true);
-            setSyncState(remoteData.folders.length || remoteData.cards.length ? "synced" : "none");
-        } catch (err) {
-            setError(getErrorMessage(err, "No se pudo actualizar desde Supabase."));
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
-    async function pushLocalToSupabase() {
-        setError(null);
-        setIsLoading(true);
-
-        try {
-            const localData = getLocalFlashcardData();
-
-            await replaceRemoteFlashcardData(localData);
-            setFolders(localData.folders);
-            setCards(localData.cards);
-            setIsRemote(true);
-            setSyncState(localData.folders.length || localData.cards.length ? "synced" : "none");
-        } catch (err) {
-            setError(getErrorMessage(err, "No se pudo subir lo local a Supabase."));
-        } finally {
-            setIsLoading(false);
         }
     }
 
@@ -260,15 +205,12 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
         isLoading,
         isRemote,
         error,
-        syncState,
         addFolder,
         updateFolder,
         addCard,
         deleteCard,
         updateCard,
         deleteFolder,
-        pullFromSupabase,
-        pushLocalToSupabase,
     };
 
     return (
