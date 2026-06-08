@@ -186,6 +186,22 @@ function normalizeData(data: FlashcardData) {
     });
 }
 
+function mergeFlashcardData(localData: FlashcardData, remoteData: FlashcardData): FlashcardData {
+    const folders = new Map(remoteData.folders.map((folder) => [folder.id, folder]));
+    const cards = new Map(remoteData.cards.map((card) => [card.id, card]));
+
+    localData.folders.forEach((folder) => folders.set(folder.id, folder));
+    localData.cards.forEach((card) => cards.set(card.id, card));
+
+    const mergedFolders = Array.from(folders.values());
+    const folderIds = new Set(mergedFolders.map((folder) => folder.id));
+
+    return {
+        folders: mergedFolders,
+        cards: Array.from(cards.values()).filter((card) => folderIds.has(card.folderId)),
+    };
+}
+
 function getSyncState(localData: FlashcardData, remoteData: FlashcardData): FlashcardSyncState {
     const hasLocal = hasData(localData);
     const hasRemote = hasData(remoteData);
@@ -326,13 +342,20 @@ export async function loadRemoteFlashcardData() {
         };
     }
 
-    if (syncState === "local-only") {
+    if (syncState === "local-only" || syncState === "out-of-sync") {
+        const mergedData = mergeFlashcardData(localData, remoteData);
+
+        await replaceRemoteFlashcardData(mergedData);
+        saveLocalFlashcardData(mergedData);
+
         return {
-            ...localData,
+            ...mergedData,
             isRemote: true,
-            syncState,
+            syncState: "synced" as FlashcardSyncState,
         };
     }
+
+    saveLocalFlashcardData(remoteData);
 
     return {
         ...remoteData,

@@ -44,3 +44,15 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+## Formulario de contacto
+
+El formulario usa una función serverless de Netlify y Resend para evitar exponer
+credenciales en el navegador. Configura estas variables privadas en Netlify:
+
+- `CONTACT_TO_EMAIL`: correo que recibirá los mensajes.
+- `RESEND_API_KEY`: API key privada de Resend.
+- `RESEND_FROM_EMAIL`: remitente verificado en Resend.
+
+No uses el prefijo `REACT_APP_` para estas variables porque ese prefijo incluiría
+sus valores en el bundle público.

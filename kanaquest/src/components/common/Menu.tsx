@@ -1,5 +1,4 @@
 import { Section } from "../../types/navigation";
-import { useSupabaseAccount } from "../../hooks/useSupabaseAccount";
 
 type Props = {
     isOpen: boolean;
@@ -13,17 +12,17 @@ const menuItems: Array<{ section: Section; label: string }> = [
     { section: "kanji", label: "Kanji" },
     { section: "sentences", label: "Oraciones" },
     { section: "vocabulary", label: "Vocabulario" },
+    { section: "grammar", label: "Gramática" },
+    { section: "help", label: "Cómo usar" },
     { section: "account", label: "Cuenta" },
 ];
 
 export default function Menu({ isOpen, activeSection, onChangeSection }: Props) {
-    const { displayName, isSignedIn } = useSupabaseAccount();
-
     return (
         <nav className={`side-menu ${isOpen ? "is-open" : ""}`}>
             <div className="side-menu-header">
                 <span>KanaQuest</span>
-                {isSignedIn && <small>{displayName || "Cuenta"}</small>}
+                <small>Tu espacio de estudio</small>
             </div>
 
             <div className="side-menu-links">

@@ -44,7 +44,7 @@ export default function FlashcardList({ cards, onDeleteCard, onEditCard }: Props
 
                     <dl className="flashcard-meta">
                         <div>
-                            <dt>Pronunciacion</dt>
+                            <dt>Pronunciación</dt>
                             <dd>{card.pronunciation}</dd>
                         </div>
 

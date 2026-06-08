@@ -82,7 +82,7 @@ export default function KanjiForm({
             </label>
 
             <label className="field-group">
-                Pronunciacion
+                Pronunciación
                 <input
                     value={pronunciation}
                     onChange={(e) => setPronunciation(e.target.value)}
@@ -91,7 +91,7 @@ export default function KanjiForm({
             </label>
 
             <label className="field-group">
-                Significado en espanol
+                Significado en español
                 <input
                     value={meaning}
                     onChange={(e) => setMeaning(e.target.value)}

@@ -12,7 +12,7 @@ export default function FlashcardSearch({ value, onChange }: Props) {
                 id="flashcard-search"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                placeholder="Caracter japones, pronunciacion o significado"
+                placeholder="Carácter japonés, pronunciación o significado"
             />
         </section>
     );
