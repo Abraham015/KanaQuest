@@ -7,18 +7,21 @@ import KatakanaPage from "./pages/KatakanaPage";
 import KanjiPage from "./pages/KanjiPage";
 import SentencesPage from "./pages/SentencesPage";
 import VocabularyPage from "./pages/VocabularyPage";
+import AccountPage from "./pages/AccountPage";
 import { Section } from "./types/navigation";
-import { getFlashcards } from "./utils/flashcardStorage";
 import { getGlobalSearchResults } from "./utils/globalSearch";
+import { FlashcardStoreProvider, useFlashcardStore } from "./hooks/useFlashcardStore";
+import { SupabaseAccountProvider } from "./hooks/useSupabaseAccount";
 
-export default function App() {
+function AppContent() {
     const [section, setSection] = useState<Section>("hiragana");
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const { cards } = useFlashcardStore();
 
     const searchResults = useMemo(() => {
-        return getGlobalSearchResults(searchTerm, getFlashcards());
-    }, [searchTerm]);
+        return getGlobalSearchResults(searchTerm, cards);
+    }, [cards, searchTerm]);
 
     function handleChangeSection(newSection: Section) {
         setSection(newSection);
@@ -41,6 +44,17 @@ export default function App() {
             {section === "kanji" && <KanjiPage />}
             {section === "sentences" && <SentencesPage />}
             {section === "vocabulary" && <VocabularyPage />}
+            {section === "account" && <AccountPage />}
         </Layout>
+    );
+}
+
+export default function App() {
+    return (
+        <SupabaseAccountProvider>
+            <FlashcardStoreProvider>
+                <AppContent />
+            </FlashcardStoreProvider>
+        </SupabaseAccountProvider>
     );
 }

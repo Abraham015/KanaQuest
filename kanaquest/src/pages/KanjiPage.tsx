@@ -5,61 +5,36 @@ import FolderForm from "../components/flashcards/FolderForm";
 import FolderGrid from "../components/flashcards/FolderGrid";
 import FlashcardList from "../components/flashcards/FlashcardList";
 import FlashcardPractice from "../components/flashcards/FlashcardPractice";
-import { CustomFlashcard, FlashcardFolder } from "../types/flashcards";
-import {
-    getFlashcards,
-    getFolders,
-    saveFlashcards,
-    saveFolders,
-} from "../utils/flashcardStorage";
+import { CustomFlashcard } from "../types/flashcards";
+import { useFlashcardStore } from "../hooks/useFlashcardStore";
 
 type Mode = "manage" | "practice";
 
 export default function KanjiPage() {
-    const [folders, setFolders] = useState<FlashcardFolder[]>(() => getFolders());
-    const [cards, setCards] = useState<CustomFlashcard[]>(() => getFlashcards());
+    const {
+        folders,
+        cards,
+        isLoading,
+        isRemote,
+        error,
+        addFolder,
+        updateFolder,
+        addCard,
+        deleteCard,
+        updateCard,
+        deleteFolder,
+    } = useFlashcardStore();
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
     const [mode, setMode] = useState<Mode>("manage");
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditFolderModalOpen, setIsEditFolderModalOpen] = useState(false);
     const [isDeleteFolderModalOpen, setIsDeleteFolderModalOpen] = useState(false);
     const [editingCard, setEditingCard] = useState<CustomFlashcard | null>(null);
 
-    function addFolder(folder: FlashcardFolder) {
-        const updatedFolders = [...folders, folder];
-        setFolders(updatedFolders);
-        saveFolders(updatedFolders);
-    }
-
-    function addCard(card: CustomFlashcard) {
-        const updatedCards = [...cards, card];
-        setCards(updatedCards);
-        saveFlashcards(updatedCards);
-    }
-
-    function deleteCard(id: string) {
-        const updatedCards = cards.filter((card) => card.id !== id);
-        setCards(updatedCards);
-        saveFlashcards(updatedCards);
-    }
-
-    function updateCard(updatedCard: CustomFlashcard) {
-        const updatedCards = cards.map((card) =>
-            card.id === updatedCard.id ? updatedCard : card
-        );
-        setCards(updatedCards);
-        saveFlashcards(updatedCards);
-    }
-
-    function deleteSelectedFolder() {
+    async function deleteSelectedFolder() {
         if (!selectedFolderId) return;
 
-        const updatedFolders = folders.filter((folder) => folder.id !== selectedFolderId);
-        const updatedCards = cards.filter((card) => card.folderId !== selectedFolderId);
-
-        setFolders(updatedFolders);
-        setCards(updatedCards);
-        saveFolders(updatedFolders);
-        saveFlashcards(updatedCards);
+        await deleteFolder(selectedFolderId);
         setSelectedFolderId(null);
         setIsDeleteFolderModalOpen(false);
     }
@@ -85,6 +60,8 @@ export default function KanjiPage() {
         return (
             <main className="page-container">
                 <h1>Kanji</h1>
+                <p>{isLoading ? "Cargando tarjetas..." : isRemote ? "Guardando en Supabase" : "Guardando localmente"}</p>
+                {error && <p>{error}</p>}
 
                 <FolderForm folderType="kanji" onAddFolder={addFolder} />
 
@@ -118,6 +95,13 @@ export default function KanjiPage() {
 
                 <div className="folder-actions">
                     <button
+                        className="secondary-button"
+                        onClick={() => setIsEditFolderModalOpen(true)}
+                    >
+                        Editar carpeta
+                    </button>
+
+                    <button
                         className="delete-folder-button"
                         onClick={() => setIsDeleteFolderModalOpen(true)}
                     >
@@ -129,6 +113,9 @@ export default function KanjiPage() {
                     </button>
                 </div>
             </div>
+
+            <p>{isLoading ? "Cargando tarjetas..." : isRemote ? "Guardando en Supabase" : "Guardando localmente"}</p>
+            {error && <p>{error}</p>}
 
             <div className="tabs">
                 <button onClick={() => setMode("manage")}>Gestionar</button>
@@ -188,11 +175,25 @@ export default function KanjiPage() {
             {editingCard && (
                 <Modal title="Editar kanji" onClose={() => setEditingCard(null)}>
                     <KanjiForm
-                        folders={[selectedFolder]}
+                        folders={kanjiFolders}
                         defaultFolderId={selectedFolder.id}
                         editingCard={editingCard}
                         onAddCard={updateCard}
                         onSaved={() => setEditingCard(null)}
+                    />
+                </Modal>
+            )}
+
+            {isEditFolderModalOpen && (
+                <Modal
+                    title="Editar carpeta"
+                    onClose={() => setIsEditFolderModalOpen(false)}
+                >
+                    <FolderForm
+                        folderType="kanji"
+                        editingFolder={selectedFolder}
+                        onAddFolder={updateFolder}
+                        onSaved={() => setIsEditFolderModalOpen(false)}
                     />
                 </Modal>
             )}

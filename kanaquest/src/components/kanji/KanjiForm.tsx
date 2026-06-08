@@ -3,7 +3,7 @@ import { CustomFlashcard, FlashcardFolder } from "../../types/flashcards";
 
 type Props = {
     folders: FlashcardFolder[];
-    onAddCard: (card: CustomFlashcard) => void;
+    onAddCard: (card: CustomFlashcard) => void | Promise<void>;
     defaultFolderId?: string;
     editingCard?: CustomFlashcard;
     onSaved?: () => void;
@@ -28,22 +28,26 @@ export default function KanjiForm({
         setMeaning(editingCard?.meaning || "");
     }, [defaultFolderId, editingCard]);
 
-    function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
         if (!folderId || !kanji.trim() || !pronunciation.trim() || !meaning.trim()) {
             return;
         }
 
-        onAddCard({
-            id: editingCard?.id || crypto.randomUUID(),
-            type: "kanji",
-            folderId,
-            front: kanji.trim(),
-            pronunciation: pronunciation.trim(),
-            meaning: meaning.trim(),
-            createdAt: editingCard?.createdAt || new Date().toISOString(),
-        });
+        try {
+            await onAddCard({
+                id: editingCard?.id || crypto.randomUUID(),
+                type: "kanji",
+                folderId,
+                front: kanji.trim(),
+                pronunciation: pronunciation.trim(),
+                meaning: meaning.trim(),
+                createdAt: editingCard?.createdAt || new Date().toISOString(),
+            });
+        } catch {
+            return;
+        }
 
         setKanji("");
         setPronunciation("");
@@ -53,7 +57,9 @@ export default function KanjiForm({
 
     return (
         <form className="form-card" onSubmit={handleSubmit}>
-            {!defaultFolderId && (
+            {(!defaultFolderId || editingCard) && (
+                <label className="field-group">
+                    Carpeta
                 <select value={folderId} onChange={(e) => setFolderId(e.target.value)}>
                     <option value="">Selecciona carpeta</option>
 
@@ -63,6 +69,7 @@ export default function KanjiForm({
                         </option>
                     ))}
                 </select>
+                </label>
             )}
 
             <label className="field-group">

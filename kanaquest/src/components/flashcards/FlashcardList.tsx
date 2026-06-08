@@ -21,7 +21,24 @@ export default function FlashcardList({ cards, onDeleteCard, onEditCard }: Props
         <section className="custom-card-list">
             {cards.map((card) => (
                 <article key={card.id} className="small-card">
-                    <span className="card-type">{cardTypeLabels[card.type]}</span>
+                    <div className="small-card-header">
+                        <span className="card-type">{cardTypeLabels[card.type]}</span>
+
+                        <div className="small-card-actions">
+                            <button
+                                className="edit-card-button"
+                                onClick={() => onEditCard(card)}
+                            >
+                                Editar
+                            </button>
+                            <button
+                                className="delete-card-button"
+                                onClick={() => onDeleteCard(card.id)}
+                            >
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
 
                     <h2>{card.front}</h2>
 
@@ -36,21 +53,6 @@ export default function FlashcardList({ cards, onDeleteCard, onEditCard }: Props
                             <dd>{card.meaning}</dd>
                         </div>
                     </dl>
-
-                    <div className="small-card-actions">
-                        <button
-                            className="edit-card-button"
-                            onClick={() => onEditCard(card)}
-                        >
-                            Editar
-                        </button>
-                        <button
-                            className="delete-card-button"
-                            onClick={() => onDeleteCard(card.id)}
-                        >
-                            Eliminar
-                        </button>
-                    </div>
                 </article>
             ))}
         </section>
