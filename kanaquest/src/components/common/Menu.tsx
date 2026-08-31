@@ -22,7 +22,6 @@ export default function Menu({ isOpen, activeSection, onChangeSection }: Props) 
         <nav className={`side-menu ${isOpen ? "is-open" : ""}`}>
             <div className="side-menu-header">
                 <span>KanaQuest</span>
-                <small>Tu espacio de estudio</small>
             </div>
 
             <div className="side-menu-links">

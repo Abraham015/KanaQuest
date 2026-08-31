@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 
 type AccountContextValue = {
@@ -68,7 +68,22 @@ export function SupabaseAccountProvider({ children }: { children: ReactNode }) {
     const [displayName, setDisplayName] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    async function loadAccount() {
+    const loadCachedSessionAccount = useCallback(async function loadCachedSessionAccount() {
+        const {
+            data: { session },
+        } = await supabase!.auth.getSession();
+
+        const user = session?.user;
+
+        setEmail(user?.email || null);
+        setDisplayName(
+            typeof user?.user_metadata?.displayable_name === "string"
+                ? user.user_metadata.displayable_name
+                : user?.email?.split("@")[0] || null
+        );
+    }, []);
+
+    const loadAccount = useCallback(async function loadAccount() {
         if (!supabase) {
             setIsLoading(false);
             return;
@@ -104,10 +119,18 @@ export function SupabaseAccountProvider({ children }: { children: ReactNode }) {
             setDisplayName(data?.displayable_name || fallbackName);
         } catch (err) {
             console.error(getErrorMessage(err, "No se pudo cargar la cuenta."));
+
+            try {
+                await loadCachedSessionAccount();
+            } catch (sessionErr) {
+                console.error(getErrorMessage(sessionErr, "No se pudo cargar la sesion local."));
+                setEmail(null);
+                setDisplayName(null);
+            }
         } finally {
             setIsLoading(false);
         }
-    }
+    }, [loadCachedSessionAccount]);
 
     useEffect(() => {
         loadAccount();
@@ -117,6 +140,13 @@ export function SupabaseAccountProvider({ children }: { children: ReactNode }) {
         });
 
         return () => subscription?.data.subscription.unsubscribe();
+    }, [loadAccount]);
+
+    const signOut = useCallback(async function signOut() {
+        await supabase?.auth.signOut();
+        localStorage.removeItem(SESSION_ACTIVITY_KEY);
+        setEmail(null);
+        setDisplayName(null);
     }, []);
 
     useEffect(() => {
@@ -162,7 +192,7 @@ export function SupabaseAccountProvider({ children }: { children: ReactNode }) {
             activityEvents.forEach((eventName) => window.removeEventListener(eventName, saveActivity));
             window.clearInterval(timeoutCheck);
         };
-    }, [email]);
+    }, [email, signOut]);
 
     async function signIn(nextEmail: string, password: string): Promise<AccountActionResult> {
         if (!supabase) {
@@ -215,13 +245,6 @@ export function SupabaseAccountProvider({ children }: { children: ReactNode }) {
             ok: true,
             message: "Revisa tu correo para confirmar la cuenta.",
         };
-    }
-
-    async function signOut() {
-        await supabase?.auth.signOut();
-        localStorage.removeItem(SESSION_ACTIVITY_KEY);
-        setEmail(null);
-        setDisplayName(null);
     }
 
     async function updateDisplayName(nextDisplayName: string): Promise<AccountActionResult> {

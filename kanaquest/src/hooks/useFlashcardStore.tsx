@@ -32,6 +32,19 @@ type FlashcardStore = {
 
 const FlashcardStoreContext = createContext<FlashcardStore | null>(null);
 
+function isLikelyOfflineError(error: unknown) {
+    if (typeof navigator !== "undefined" && !navigator.onLine) return true;
+
+    const message = getErrorMessage(error, "").toLowerCase();
+
+    return (
+        message.includes("failed to fetch") ||
+        message.includes("network") ||
+        message.includes("fetch") ||
+        message.includes("offline")
+    );
+}
+
 export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
     const [folders, setFolders] = useState<FlashcardFolder[]>(() => getFolders());
     const [cards, setCards] = useState<CustomFlashcard[]>(() => getFlashcards());
@@ -88,7 +101,14 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
 
         try {
             if (isRemote) {
-                await createRemoteFolder(folder);
+                try {
+                    await createRemoteFolder(folder);
+                } catch (err) {
+                    if (!isLikelyOfflineError(err)) throw err;
+
+                    setIsRemote(false);
+                    setError("Sin conexion. La carpeta se guardo localmente y se sincronizara cuando vuelvas a iniciar sesion con conexion.");
+                }
             }
 
             const updatedFolders = [...folders, folder];
@@ -126,7 +146,14 @@ export function FlashcardStoreProvider({ children }: { children: ReactNode }) {
 
         try {
             if (isRemote) {
-                await createRemoteFlashcard(card);
+                try {
+                    await createRemoteFlashcard(card);
+                } catch (err) {
+                    if (!isLikelyOfflineError(err)) throw err;
+
+                    setIsRemote(false);
+                    setError("Sin conexion. La tarjeta nueva se guardo localmente y se sincronizara cuando vuelvas a iniciar sesion con conexion.");
+                }
             }
 
             const updatedCards = [...cards, card];

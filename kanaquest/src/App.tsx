@@ -13,17 +13,24 @@ import GrammarPage from "./pages/GrammarPage";
 import { Section } from "./types/navigation";
 import { getGlobalSearchResults } from "./utils/globalSearch";
 import { FlashcardStoreProvider, useFlashcardStore } from "./hooks/useFlashcardStore";
-import { SupabaseAccountProvider } from "./hooks/useSupabaseAccount";
+import { SupabaseAccountProvider, useSupabaseAccount } from "./hooks/useSupabaseAccount";
 
 function AppContent() {
     const [section, setSection] = useState<Section>("hiragana");
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const { cards } = useFlashcardStore();
+    const { isSignedIn } = useSupabaseAccount();
+
+    const searchableCards = useMemo(() => {
+        if (isSignedIn) return cards;
+
+        return [];
+    }, [cards, isSignedIn]);
 
     const searchResults = useMemo(() => {
-        return getGlobalSearchResults(searchTerm, cards);
-    }, [cards, searchTerm]);
+        return getGlobalSearchResults(searchTerm, searchableCards);
+    }, [searchableCards, searchTerm]);
 
     function handleChangeSection(newSection: Section) {
         setSection(newSection);

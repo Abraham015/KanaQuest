@@ -1386,6 +1386,30 @@ body {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
+.auth-required-panel {
+  display: grid;
+  gap: 8px;
+  max-width: 680px;
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid #c7d2fe;
+  border-radius: 18px;
+  background: #eef2ff;
+  color: #3730a3;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.auth-required-panel h2,
+.auth-required-panel p {
+  margin: 0;
+}
+
+.auth-required-panel p {
+  color: #4f46e5;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
 .folder-detail-header {
   display: grid;
   grid-template-columns: auto 1fr auto;

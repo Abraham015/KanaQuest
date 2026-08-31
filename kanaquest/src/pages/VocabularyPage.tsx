@@ -1,12 +1,13 @@
-import { useMemo, useState } from "react";
+import {useMemo, useState} from "react";
 import Modal from "../components/common/Modal";
 import VocabularyForm from "../components/vocabulary/VocabularyForm";
 import FolderForm from "../components/flashcards/FolderForm";
 import FolderGrid from "../components/flashcards/FolderGrid";
 import FlashcardList from "../components/flashcards/FlashcardList";
 import FlashcardPractice from "../components/flashcards/FlashcardPractice";
-import { CustomFlashcard } from "../types/flashcards";
-import { useFlashcardStore } from "../hooks/useFlashcardStore";
+import {CustomFlashcard} from "../types/flashcards";
+import {useFlashcardStore} from "../hooks/useFlashcardStore";
+import {useSupabaseAccount} from "../hooks/useSupabaseAccount";
 
 type Mode = "manage" | "practice";
 
@@ -14,8 +15,6 @@ export default function VocabularyPage() {
     const {
         folders,
         cards,
-        isLoading,
-        isRemote,
         error,
         addFolder,
         updateFolder,
@@ -24,6 +23,7 @@ export default function VocabularyPage() {
         updateCard,
         deleteFolder,
     } = useFlashcardStore();
+    const { isConfigured, isLoading: isAccountLoading, isSignedIn } = useSupabaseAccount();
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
     const [mode, setMode] = useState<Mode>("manage");
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -56,11 +56,26 @@ export default function VocabularyPage() {
         return vocabularyCards.filter((card) => card.folderId === selectedFolderId);
     }, [vocabularyCards, selectedFolderId]);
 
+    if (isAccountLoading || !isSignedIn) {
+        return (
+            <main className="page-container">
+                <h1>Vocabulario</h1>
+                <section className="auth-required-panel">
+                    <h2>{isAccountLoading ? "Comprobando sesion..." : "Inicia sesion para ver tus carpetas"}</h2>
+                    <p>
+                        {isConfigured
+                            ? "Las carpetas de vocabulario solo se muestran con una cuenta iniciada o creada. Si pierdes conexion despues de iniciar sesion, las tarjetas nuevas se guardan localmente."
+                            : "Supabase no esta configurado. Configuralo para crear o iniciar una cuenta antes de usar carpetas de vocabulario."}
+                    </p>
+                </section>
+            </main>
+        );
+    }
+
     if (!selectedFolderId || !selectedFolder) {
         return (
             <main className="page-container">
                 <h1>Vocabulario</h1>
-                <p>{isLoading ? "Cargando tarjetas..." : isRemote ? "Guardando en Supabase" : "Guardando localmente"}</p>
                 {error && <p>{error}</p>}
 
                 <FolderForm folderType="vocabulary" onAddFolder={addFolder} />
@@ -114,7 +129,6 @@ export default function VocabularyPage() {
                 </div>
             </div>
 
-            <p>{isLoading ? "Cargando tarjetas..." : isRemote ? "Guardando en Supabase" : "Guardando localmente"}</p>
             {error && <p>{error}</p>}
 
             <div className="tabs">
