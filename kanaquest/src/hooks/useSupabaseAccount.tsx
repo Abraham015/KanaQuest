@@ -89,8 +89,6 @@ export function SupabaseAccountProvider({ children }: { children: ReactNode }) {
             return;
         }
 
-        setIsLoading(true);
-
         try {
             const {
                 data: { user },
