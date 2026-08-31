@@ -5,6 +5,7 @@ import FolderForm from "../components/flashcards/FolderForm";
 import FolderGrid from "../components/flashcards/FolderGrid";
 import FlashcardList from "../components/flashcards/FlashcardList";
 import FlashcardPractice from "../components/flashcards/FlashcardPractice";
+import AllCardsPractice from "../components/flashcards/AllCardsPractice";
 import {CustomFlashcard} from "../types/flashcards";
 import {useFlashcardStore} from "../hooks/useFlashcardStore";
 import {useSupabaseAccount} from "../hooks/useSupabaseAccount";
@@ -26,6 +27,7 @@ export default function SentencesPage() {
     } = useFlashcardStore();
     const { isConfigured, isLoading: isAccountLoading, isSignedIn } = useSupabaseAccount();
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+    const [isPracticingAll, setIsPracticingAll] = useState(false);
     const [mode, setMode] = useState<Mode>("manage");
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditFolderModalOpen, setIsEditFolderModalOpen] = useState(false);
@@ -73,6 +75,18 @@ export default function SentencesPage() {
         );
     }
 
+    if (isPracticingAll) {
+        return (
+            <main className="page-container">
+                <AllCardsPractice
+                    cards={sentenceCards}
+                    itemLabel="oraciones"
+                    onBack={() => setIsPracticingAll(false)}
+                />
+            </main>
+        );
+    }
+
     if (!selectedFolderId || !selectedFolder) {
         return (
             <main className="page-container">
@@ -81,6 +95,16 @@ export default function SentencesPage() {
                 {error && <p>{error}</p>}
 
                 <FolderForm folderType="sentence" onAddFolder={addFolder} />
+
+                <div className="all-cards-action">
+                    <button
+                        onClick={() => setIsPracticingAll(true)}
+                        disabled={!sentenceCards.length}
+                    >
+                        Practicar todas las tarjetas
+                    </button>
+                    <span>{sentenceCards.length} oraciones en todas tus carpetas</span>
+                </div>
 
                 <FolderGrid
                     folders={sentenceFolders}
